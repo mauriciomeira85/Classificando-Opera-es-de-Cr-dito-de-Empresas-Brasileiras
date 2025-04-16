@@ -1,32 +1,39 @@
+# Usa imagem Python oficial
 FROM python:3.10-slim
 
-# Instala dependências básicas
-RUN apt-get update && apt-get install -y \
-    wget \
-    curl \
-    gnupg2 \
-    software-properties-common \
-    && apt-get clean
-
-# Instala o Java 8 manualmente
-RUN mkdir -p /usr/lib/jvm && \
-    wget https://github.com/adoptium/temurin8-binaries/releases/download/jdk8u402-b06/OpenJDK8U-jdk_x64_linux_hotspot_8u402b06.tar.gz -O /tmp/jdk.tar.gz && \
-    tar -xzf /tmp/jdk.tar.gz -C /usr/lib/jvm && \
-    mv /usr/lib/jvm/jdk8u402-b06 /usr/lib/jvm/java-8-openjdk-amd64 && \
-    rm /tmp/jdk.tar.gz
+# Instala Java 8 e dependências do sistema
+RUN apt-get update && \
+    apt-get install -y openjdk-8-jdk wget curl && \
+    apt-get clean && \
+    rm -rf /var/lib/apt/lists/*
 
 # Define variáveis de ambiente do Java
 ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
-ENV PATH=$JAVA_HOME/bin:$PATH
+ENV PATH="$JAVA_HOME/bin:$PATH"
 
-# Instala Streamlit e PySpark
-COPY requirements.txt .
-RUN pip install --upgrade pip && pip install -r requirements.txt
+# Instala o Spark manualmente
+ENV SPARK_VERSION=3.3.2
+RUN wget https://downloads.apache.org/spark/spark-$SPARK_VERSION/spark-$SPARK_VERSION-bin-hadoop3.tgz && \
+    tar -xvzf spark-$SPARK_VERSION-bin-hadoop3.tgz && \
+    mv spark-$SPARK_VERSION-bin-hadoop3 /opt/spark && \
+    rm spark-$SPARK_VERSION-bin-hadoop3.tgz
 
-# Copia os arquivos da aplicação
-COPY . /app
+ENV SPARK_HOME=/opt/spark
+ENV PATH="$SPARK_HOME/bin:$PATH"
+
+# Cria diretório da aplicação
 WORKDIR /app
 
-# Executa o app Streamlit
-CMD ["streamlit", "run", "app.py", "--server.port=10000", "--server.address=0.0.0.0"]
+# Copia todos os arquivos do projeto para o contêiner
+COPY . .
+
+# Instala dependências Python
+RUN pip install --upgrade pip
+RUN pip install -r requirements.txt
+
+# Expõe a porta padrão do Streamlit
+EXPOSE 8501
+
+# Comando para iniciar a aplicação
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
 

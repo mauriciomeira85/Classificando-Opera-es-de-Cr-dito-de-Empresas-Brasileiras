@@ -2,9 +2,11 @@ __pycache__/
 *.pyc
 *.pyo
 *.pyd
-*.env
-env/
+*.db
+*.sqlite3
+*.log
 venv/
-streamlit_env*/
-nohup.out
+streamlit_env_310/
+.DS_Store
+.env
 
