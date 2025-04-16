@@ -1,35 +1,35 @@
-# Imagem base
-FROM python:3.10-slim
+# Usa imagem com Java 11 já instalado
+FROM openjdk:11
 
-# Instala dependências do sistema
+# Instala Python e pip
 RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    openjdk-11-jdk-headless \
-    wget \
-    curl && \
-    rm -rf /var/lib/apt/lists/*
+    apt-get install -y python3 python3-pip && \
+    apt-get clean
 
-# Variáveis de ambiente Java e Spark
-ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
-ENV SPARK_VERSION=3.3.2
-ENV HADOOP_VERSION=3
-ENV SPARK_HOME=/opt/spark
-ENV PATH="$SPARK_HOME/bin:$PATH"
-
-# Instalar o Spark
-RUN mkdir -p /opt && \
-    curl -L https://downloads.apache.org/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz \
-    | tar -xz -C /opt && \
-    mv /opt/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} /opt/spark
-
-# Copiar arquivos do app
+# Define diretório da aplicação
 WORKDIR /app
+
+# Copia os arquivos do projeto para dentro do container
 COPY . /app
 
-# Instalar dependências Python
-RUN pip install --upgrade pip && \
-    pip install -r requirements.txt
+# Instala dependências
+RUN pip3 install --no-cache-dir -r requirements.txt
 
-# Executar a aplicação
-CMD ["streamlit", "run", "app.py", "--server.port=10000", "--server.address=0.0.0.0"]
+# Instala Spark (ajustado para versão usada no projeto)
+ENV SPARK_VERSION=3.3.2
+RUN curl -O https://downloads.apache.org/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop3.tgz && \
+    tar -xvzf spark-${SPARK_VERSION}-bin-hadoop3.tgz && \
+    mv spark-${SPARK_VERSION}-bin-hadoop3 /opt/spark && \
+    rm spark-${SPARK_VERSION}-bin-hadoop3.tgz
+
+# Configura variáveis de ambiente
+ENV SPARK_HOME=/opt/spark
+ENV PATH="$SPARK_HOME/bin:$PATH"
+ENV JAVA_HOME=/usr/local/openjdk-11
+
+# Expõe a porta padrão do Streamlit
+EXPOSE 8501
+
+# Comando para iniciar o Streamlit
+CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
 
