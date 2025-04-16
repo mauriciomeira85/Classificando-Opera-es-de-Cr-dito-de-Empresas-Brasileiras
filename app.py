@@ -1,3 +1,4 @@
+# app.py
 import streamlit as st
 import numpy as np
 from datetime import datetime
@@ -7,8 +8,9 @@ from pyspark.ml import PipelineModel
 import os
 
 # Variáveis de ambiente
-os.environ["JAVA_HOME"] = "/usr/lib/jvm/java-8-openjdk-amd64"
+os.environ["JAVA_HOME"] = "/usr/local/openjdk-11"
 os.environ["SPARK_HOME"] = "/opt/spark"
+os.environ["PATH"] += os.pathsep + "/opt/spark/bin"
 
 # Inicializar SparkSession
 spark = SparkSession.builder \
@@ -16,6 +18,7 @@ spark = SparkSession.builder \
     .config("spark.ui.enabled", "false") \
     .config("spark.driver.memory", "4g") \
     .config("spark.sql.repl.eagerEval.enabled", "true") \
+    .config("spark.driver.extraJavaOptions", "-Djava.library.path=/usr/local/openjdk-11/lib") \
     .getOrCreate()
 
 spark.sparkContext.setLogLevel("ERROR")
