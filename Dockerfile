@@ -2,11 +2,12 @@
 FROM python:3.10-slim
 
 # Instala dependências do sistema
-RUN apt-get update && apt-get install -y \
-    openjdk-11-jdk \
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    openjdk-11-jdk-headless \
     wget \
-    curl \
-    && apt-get clean
+    curl && \
+    rm -rf /var/lib/apt/lists/*
 
 # Variáveis de ambiente Java e Spark
 ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
