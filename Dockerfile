@@ -3,13 +3,13 @@ FROM python:3.10-slim
 
 # Instala dependências do sistema
 RUN apt-get update && apt-get install -y \
-    openjdk-8-jdk \
+    openjdk-11-jdk \
     wget \
     curl \
     && apt-get clean
 
 # Variáveis de ambiente Java e Spark
-ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
+ENV JAVA_HOME=/usr/lib/jvm/java-11-openjdk-amd64
 ENV SPARK_VERSION=3.3.2
 ENV HADOOP_VERSION=3
 ENV SPARK_HOME=/opt/spark
