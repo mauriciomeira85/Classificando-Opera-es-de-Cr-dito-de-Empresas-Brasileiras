@@ -1,43 +1,36 @@
-# Imagem base com Java 11 e Debian Slim
-FROM openjdk:11-slim
+FROM python:3.9-slim
 
 # Variáveis de ambiente
-ENV SPARK_VERSION=3.2.1
-ENV HADOOP_VERSION=2.7
-ENV JAVA_HOME=/usr/local/openjdk-11
+ENV JAVA_HOME=/usr/lib/jvm/java-8-openjdk-amd64
 ENV SPARK_HOME=/opt/spark
 ENV PATH=$SPARK_HOME/bin:$PATH
+ENV PYSPARK_PYTHON=python3
 
-# Instala dependências do sistema e Python
+# Instala dependências do sistema
 RUN apt-get update && \
-    apt-get install -y \
-    python3 \
-    python3-pip \
-    python3-venv \
-    curl \
+    apt-get install -y --no-install-recommends \
+    openjdk-8-jdk \
     wget \
-    && apt-get clean && \
+    curl \
+    software-properties-common && \
+    apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# Instala Spark
-RUN curl -O https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz && \
-    tar -xvzf spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz && \
-    mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} ${SPARK_HOME} && \
-    rm spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz
+# Instala o Spark
+ENV SPARK_VERSION=3.2.1
+RUN curl -O https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-${SPARK_VERSION}-bin-hadoop2.7.tgz && \
+    tar -xvzf spark-${SPARK_VERSION}-bin-hadoop2.7.tgz && \
+    mv spark-${SPARK_VERSION}-bin-hadoop2.7 /opt/spark && \
+    rm spark-${SPARK_VERSION}-bin-hadoop2.7.tgz
 
-# Define diretório da aplicação
+# Instala dependências Python
+COPY requirements.txt .
+RUN pip install --upgrade pip && pip install -r requirements.txt
+
+# Copia o código do app
+COPY . /app
 WORKDIR /app
 
-# Copia os arquivos da aplicação
-COPY . /app
-
-# Instala dependências do projeto
-RUN pip3 install --upgrade pip
-RUN pip3 install -r requirements.txt
-
-# Expõe a porta da aplicação
-EXPOSE 8501
-
 # Comando para iniciar a aplicação
-CMD ["streamlit", "run", "app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+CMD ["streamlit", "run", "app.py", "--server.port=10000", "--server.address=0.0.0.0"]
 
