@@ -1,0 +1,1 @@
+{"class":"org.apache.spark.ml.feature.StringIndexerModel","timestamp":1744290361108,"sparkVersion":"3.2.1","uid":"StringIndexer_36478d5c42f2","paramMap":{"inputCol":"cnae_secao","outputCol":"cnae_secao_index","handleInvalid":"keep"},"defaultParamMap":{"stringOrderType":"frequencyDesc","outputCol":"StringIndexer_36478d5c42f2__output","handleInvalid":"error"}}
