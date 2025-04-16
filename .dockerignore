@@ -4,9 +4,8 @@ __pycache__/
 *.pyd
 *.db
 *.sqlite3
-*.log
+.env
 venv/
 streamlit_env_310/
 .DS_Store
-.env
 
