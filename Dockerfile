@@ -1,5 +1,5 @@
-# Usar imagem base com Java 8 (slim para menor tamanho)
-FROM openjdk:8-slim
+# Imagem base com mais suporte
+FROM debian:bullseye
 
 # Variáveis de ambiente
 ENV PYSPARK_PYTHON=python3
@@ -10,16 +10,16 @@ ENV HADOOP_VERSION=2.7
 ENV SPARK_HOME=/opt/spark
 ENV PATH="$SPARK_HOME/bin:$PATH"
 
-# Instalar dependências do sistema
+# Instalar dependências e Java 8
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
-    openjdk-8-jdk-headless \
+    openjdk-8-jdk \
     python3 python3-pip \
     curl wget bash ca-certificates gnupg software-properties-common && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-# (DEBUG opcional) Ver caminho real do Java
+# Confirmar caminho real do Java (apenas debug)
 RUN readlink -f $(which java)
 
 # Instalar Spark
@@ -28,15 +28,15 @@ RUN curl -O https://archive.apache.org/dist/spark/spark-${SPARK_VERSION}/spark-$
     mv spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION} ${SPARK_HOME} && \
     rm spark-${SPARK_VERSION}-bin-hadoop${HADOOP_VERSION}.tgz
 
-# Definir diretório de trabalho
+# Diretório da aplicação
 WORKDIR /app
 
-# Copiar arquivos da aplicação
+# Copiar arquivos do projeto
 COPY . .
 
 # Instalar dependências Python
 RUN pip3 install --upgrade pip && pip3 install --no-cache-dir -r requirements.txt
 
-# Comando para rodar o Streamlit
+# Rodar Streamlit
 CMD ["streamlit", "run", "app.py", "--server.port=10000", "--server.address=0.0.0.0"]
 
