@@ -1,1 +1,0 @@
-{"class":"org.apache.spark.ml.feature.StringIndexerModel","timestamp":1744290361637,"sparkVersion":"3.2.1","uid":"StringIndexer_c6f563f71b7a","paramMap":{"outputCol":"cnae_subclasse_index","inputCol":"cnae_subclasse","handleInvalid":"keep"},"defaultParamMap":{"outputCol":"StringIndexer_c6f563f71b7a__output","stringOrderType":"frequencyDesc","handleInvalid":"error"}}
