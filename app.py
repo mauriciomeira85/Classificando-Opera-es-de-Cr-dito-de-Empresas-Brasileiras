@@ -61,8 +61,8 @@ if tipo_cliente == "PJ - Pessoa Jurídica":
             numero_operacoes = st.number_input("Número de Operações", min_value=0, value=1)
 
         # ⚠️ NOVO CAMPO: Classe (necessária para o pipeline treinado)
-        st.subheader("Classe (simulada para entrada)")
-        classe = st.selectbox("Classe da empresa (simulada)", ["Baixo", "Médio", "Alto"])
+        # st.subheader("Classe (simulada para entrada)")
+        # classe = st.selectbox("Classe da empresa (simulada)", ["Baixo", "Médio", "Alto"])
 
         # Dados derivados (automáticos)
         dia_do_ano = data_base.timetuple().tm_yday
@@ -116,13 +116,6 @@ if tipo_cliente == "PJ - Pessoa Jurídica":
                 st.warning("⚠️ **Médio Risco** - Analisar com cautela")
             else:
                 st.error("❌ **Alto Risco** - Recomendamos não aprovar")
-
-            # Mostrar features mais importantes (se houver)
-            if hasattr(pipeline.named_steps['classificador'], 'feature_importances_'):
-                st.subheader("Fatores mais relevantes para a decisão")
-                importances = pipeline.named_steps['classificador'].feature_importances_
-                features = pipeline.named_steps['preprocessador'].get_feature_names_out()
-                st.bar_chart(pd.Series(importances, index=features).sort_values(ascending=False).head(10))
 
         except Exception as e:
             st.error(f"Erro ao processar a previsão: {e}")
