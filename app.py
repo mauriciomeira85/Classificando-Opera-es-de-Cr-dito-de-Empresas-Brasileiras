@@ -60,6 +60,10 @@ if tipo_cliente == "PJ - Pessoa Jurídica":
             indexador = st.selectbox("Indexador", ["Pós-fixado", "Prefixado", "Índices de preços", "Flutuantes"])
             numero_operacoes = st.number_input("Número de Operações", min_value=0, value=1)
 
+        # ⚠️ NOVO CAMPO: Classe (necessária para o pipeline treinado)
+        st.subheader("Classe (simulada para entrada)")
+        classe = st.selectbox("Classe da empresa (simulada)", ["Baixo", "Médio", "Alto"])
+
         # Dados derivados (automáticos)
         dia_do_ano = data_base.timetuple().tm_yday
         mes = data_base.month
@@ -72,7 +76,7 @@ if tipo_cliente == "PJ - Pessoa Jurídica":
         submitted = st.form_submit_button("Prever Risco de Crédito")
 
     if submitted:
-        # Criar DataFrame de entrada (com as 22 colunas esperadas)
+        # Criar DataFrame de entrada com a coluna 'classe' incluída
         input_data = {
             'dia_do_ano': dia_do_ano,
             'mes': mes,
@@ -95,16 +99,16 @@ if tipo_cliente == "PJ - Pessoa Jurídica":
             'a_vencer_acima_de_5400_dias': 0.0,
             'vencido_acima_de_15_dias': 0.0,
             'carteira_ativa': 0.0,
-            'ativo_problematico': 0.0
+            'ativo_problematico': 0.0,
+            'classe': classe  # Necessário para o pipeline
         }
 
         df_input = pd.DataFrame([input_data])
 
-        # Prever risco
         try:
+            # Prever risco
             risco = pipeline.predict(df_input)[0]
 
-            # Exibir resultado
             st.subheader("Resultado da Classificação")
             if risco == 0.0:
                 st.success("✅ **Baixo Risco** - Operação recomendada")
@@ -113,13 +117,13 @@ if tipo_cliente == "PJ - Pessoa Jurídica":
             else:
                 st.error("❌ **Alto Risco** - Recomendamos não aprovar")
 
-            # Mostrar fatores importantes
+            # Mostrar features mais importantes (se houver)
             if hasattr(pipeline.named_steps['classificador'], 'feature_importances_'):
                 st.subheader("Fatores mais relevantes para a decisão")
                 importances = pipeline.named_steps['classificador'].feature_importances_
-                features = pipeline[:-1].get_feature_names_out()
+                features = pipeline.named_steps['preprocessador'].get_feature_names_out()
                 st.bar_chart(pd.Series(importances, index=features).sort_values(ascending=False).head(10))
-        
+
         except Exception as e:
             st.error(f"Erro ao processar a previsão: {e}")
 
