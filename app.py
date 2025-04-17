@@ -7,8 +7,8 @@ from pyspark.sql import SparkSession, Row
 from pyspark.ml import PipelineModel
 import os
 
-# Variáveis de ambiente
-os.environ["JAVA_HOME"] = "/usr/local/openjdk-11"
+# Variáveis de ambiente compatíveis com Dockerfile (Java 8 e Spark)
+os.environ["JAVA_HOME"] = "/usr/local/openjdk-8"
 os.environ["SPARK_HOME"] = "/opt/spark"
 os.environ["PATH"] += os.pathsep + "/opt/spark/bin"
 
@@ -16,9 +16,8 @@ os.environ["PATH"] += os.pathsep + "/opt/spark/bin"
 spark = SparkSession.builder \
     .appName("aplicacao_streamlit") \
     .config("spark.ui.enabled", "false") \
-    .config("spark.driver.memory", "4g") \
+    .config("spark.driver.memory", "2g") \
     .config("spark.sql.repl.eagerEval.enabled", "true") \
-    .config("spark.driver.extraJavaOptions", "-Djava.library.path=/usr/local/openjdk-11/lib") \
     .getOrCreate()
 
 spark.sparkContext.setLogLevel("ERROR")
@@ -32,7 +31,7 @@ pipeline_path = os.path.join(base_dir, "pipeline_model")
 modelo_rf = RandomForestClassificationModel.load(model_path)
 pipeline_model = PipelineModel.load(pipeline_path)
 
-# Interface
+# Interface Streamlit
 st.title("🔍 Classificação de Risco de Crédito")
 tipo_cliente = st.selectbox("Tipo de Cliente", ["PF - Pessoa Física", "PJ - Pessoa Jurídica"])
 
@@ -121,11 +120,7 @@ if tipo_cliente == "PJ - Pessoa Jurídica":
         }
 
         df_input = spark.createDataFrame([Row(**input_data)])
-
-        # Aplicar o pipeline treinado
         df_input = pipeline_model.transform(df_input)
-
-        # Prever
         predicao = modelo_rf.transform(df_input)
         risco = predicao.select("prediction").collect()[0][0]
 
