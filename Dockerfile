@@ -2,16 +2,17 @@
 FROM openjdk:8-slim
 
 # Variáveis de ambiente
-ENV PYSPARK_PYTHON=python3
-ENV PYSPARK_DRIVER_PYTHON=python3
 ENV JAVA_HOME=/usr/local/openjdk-8
 ENV SPARK_VERSION=3.2.1
 ENV HADOOP_VERSION=2.7
 ENV SPARK_HOME=/opt/spark
-ENV PATH="$SPARK_HOME/bin:$PATH"
+ENV PATH="${SPARK_HOME}/bin:$PATH"
+ENV PYSPARK_PYTHON=python3
+ENV PYSPARK_DRIVER_PYTHON=python3
 
-# Instalar dependências de sistema
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Instalar dependências do sistema
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
     python3 python3-pip curl wget bash ca-certificates gnupg software-properties-common && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
 
@@ -27,9 +28,10 @@ WORKDIR /app
 # Copiar arquivos da aplicação
 COPY . .
 
-# Instalar dependências do projeto
-RUN pip3 install --upgrade pip && pip3 install --no-cache-dir -r requirements.txt
+# Instalar dependências Python
+RUN pip3 install --upgrade pip && \
+    pip3 install -r requirements.txt
 
-# Rodar aplicação
+# Comando para iniciar a aplicação
 CMD ["streamlit", "run", "app.py", "--server.port=10000", "--server.address=0.0.0.0"]
 
