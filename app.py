@@ -61,8 +61,8 @@ if tipo_cliente == "PJ - Pessoa Jurídica":
             numero_operacoes = st.number_input("Número de Operações", min_value=0, value=1)
 
         # ⚠️ NOVO CAMPO: Classe (necessária para o pipeline treinado)
-        # st.subheader("Classe (simulada para entrada)")
-        # classe = st.selectbox("Classe da empresa (simulada)", ["Baixo", "Médio", "Alto"])
+        st.subheader("Classe (simulada para entrada)")
+        classe = st.selectbox("Classe da empresa (simulada)", ["Baixo", "Médio", "Alto"])
 
         # Dados derivados (automáticos)
         dia_do_ano = data_base.timetuple().tm_yday
