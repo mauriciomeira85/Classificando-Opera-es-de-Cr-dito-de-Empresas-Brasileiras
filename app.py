@@ -41,7 +41,8 @@ if tipo_cliente == "PJ - Pessoa Jurídica":
             ])
             tcb = st.selectbox("Tipo de Crédito", ["Bancário", "Cooperativas", "Não bancário"])
         with col3:
-            cnae_subclasse = st.text_input("Subclasse CNAE (ex: 0111301)", value="4711301")
+            # Campo oculto: Subclasse CNAE
+            cnae_subclasse = "4711301"  # Valor fixo para não exibir na interface
             modalidade = st.selectbox("Modalidade", [
                 "Capital de giro",
                 "Cheque especial",
@@ -60,9 +61,8 @@ if tipo_cliente == "PJ - Pessoa Jurídica":
             indexador = st.selectbox("Indexador", ["Pós-fixado", "Prefixado", "Índices de preços", "Flutuantes"])
             numero_operacoes = st.number_input("Número de Operações", min_value=0, value=1)
 
-        # ⚠️ NOVO CAMPO: Classe (necessária para o pipeline treinado)
-        st.subheader("Classe (simulada para entrada)")
-        classe = st.selectbox("Classe da empresa (simulada)", ["Baixo", "Médio", "Alto"])
+        # ⚠️ Campo oculto: Classe (necessária para o pipeline)
+        classe = "Baixo"  # Valor fixo para não exibir na interface
 
         # Dados derivados (automáticos)
         dia_do_ano = data_base.timetuple().tm_yday
